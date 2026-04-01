@@ -1,0 +1,105 @@
+// This is your Prisma schema file
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ENUMS - Define the possible values for roles and appointment status
+enum UserRole {
+  PATIENT
+  RECEPTIONIST
+  DOCTOR
+  ADMIN
+}
+
+enum AppointmentStatus {
+  AVAILABLE
+  BOOKED
+  CANCELLED
+  COMPLETED
+}
+
+// MODELS - Database tables
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  role      UserRole
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  patient Patient?
+  doctor  Doctor?
+}
+
+model Patient {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  medicalRecordNumber String?
+  dateOfBirth         DateTime?
+  phoneContact        String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  user        User        @relation(fields: [userId], references: [id])
+  appointments Appointment[]
+}
+
+model Doctor {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  specialty       String
+  licenseNumber   String   @unique
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  user            User @relation(fields: [userId], references: [id])
+  availableSchedules AvailableSchedule[]
+  appointments    Appointment[]
+}
+
+model AvailableSchedule {
+  id                  String   @id @default(cuid())
+  doctorId            String
+  dayOfWeek           Int      // 0-6 (Monday to Sunday)
+  startTime           String   // "09:00"
+  endTime             String   // "17:00"
+  appointmentDuration Int      // in minutes, e.g: 30
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  doctor              Doctor @relation(fields: [doctorId], references: [id])
+
+  @@index([doctorId])
+}
+
+model Appointment {
+  id              String            @id @default(cuid())
+  patientId       String
+  doctorId        String
+  appointmentDate DateTime
+  reason          String?
+  status          AppointmentStatus @default(AVAILABLE)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Relations
+  patient         Patient @relation(fields: [patientId], references: [id])
+  doctor          Doctor  @relation(fields: [doctorId], references: [id])
+
+  @@index([patientId])
+  @@index([doctorId])
+  @@index([appointmentDate])
+}
