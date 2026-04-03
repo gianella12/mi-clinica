@@ -26,18 +26,18 @@ export const authOptions: NextAuthOptions = {
 
         try {
           const { email, password } = schema.parse(credentials);
-          console.log(email, "email ");
+
           const user = await prisma.user.findUnique({
             where: {
               email: email,
             },
           });
-          console.log("User found:", user);
+
           if (!user) {
             return null;
           }
           const passwordMatch = await bcryptjs.compare(password, user.password);
-          console.log("Password match:", passwordMatch);
+
           if (passwordMatch) {
             return user;
           } else {
