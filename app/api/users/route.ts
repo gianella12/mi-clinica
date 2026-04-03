@@ -8,7 +8,7 @@ const registerSchema = z.object({
   lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Invalid email"),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  role: z.enum(["RECEPTIONIST", "DOCTOR"]),
+  role: z.enum(["RECEPTIONIST", "DOCTOR", "PATIENT"]),
 });
 
 export async function POST(req: NextRequest) {
@@ -33,15 +33,28 @@ export async function POST(req: NextRequest) {
     }
 
     const hashedPassword = await hashPassword(password);
-    const newUser = await prisma.user.create({
-      data: {
-        email: email,
-        password: hashedPassword,
-        firstName: firstName,
-        lastName: lastName,
-        role: role,
-      },
+    const newUser = await prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          email: email,
+          password: hashedPassword,
+          firstName: firstName,
+          lastName: lastName,
+          role: role,
+        },
+      });
+
+      if (role === "PATIENT") {
+        await tx.patient.create({
+          data: {
+            userId: user.id,
+          },
+        });
+      }
+
+      return user;
     });
+
     return NextResponse.json(
       {
         message: "User created successfully",

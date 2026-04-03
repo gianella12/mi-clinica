@@ -10,14 +10,14 @@ type RegisterFormData = {
   email: string;
   password: string;
   confirmPassword: string;
-  role: "RECEPTIONIST" | "DOCTOR";
+  role: "PATIENT";
 };
 
 const inputClass = "w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-900";
 const labelClass = "block text-sm font-semibold text-gray-600 mb-1";
 const errorClass = "text-red-500 text-xs mt-1";
 
-export default function RegisterUser() {
+export default function RegisterPatient() {
   const {
     handleSubmit,
     register,
@@ -49,7 +49,7 @@ export default function RegisterUser() {
         throw new Error("The user was not created correctly.");
       }
 
-      toast.success("Usuario creado exitosamente!");
+      toast.success("Paciente creado exitosamente!");
       reset()
     } catch (error) {
       const message = error instanceof Error ? error.message : "An error occurred";
@@ -60,7 +60,7 @@ export default function RegisterUser() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <h2 className="text-lg font-bold text-blue-900 mb-5">Crear usuario</h2>
+      <h2 className="text-lg font-bold text-blue-900 mb-5">Crear Paciente</h2>
 
       {error && (
         <p className="bg-red-50 text-red-600 text-sm px-3 py-2 rounded-md mb-4">{error}</p>
@@ -142,8 +142,7 @@ export default function RegisterUser() {
           {...register("role", { required: "El rol es requerido" })}
         >
           <option value="">Seleccionar rol</option>
-          <option value="RECEPTIONIST">Recepcionista</option>
-          <option value="DOCTOR">Doctor</option>
+          <option value="PATIENT">Patient</option>
         </select>
         {errors.role && <p className={errorClass}>{errors.role.message}</p>}
       </div>
@@ -153,7 +152,7 @@ export default function RegisterUser() {
         disabled={isSubmitting}
         className="w-full bg-blue-900 hover:bg-blue-800 disabled:opacity-50 text-white font-bold py-2.5 rounded-md text-sm cursor-pointer transition-colors"
       >
-        {isSubmitting ? "Creando..." : "Crear usuario"}
+        {isSubmitting ? "Creando..." : "Crear patient"}
       </button>
     </form>
   );
