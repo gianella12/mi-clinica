@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     }
 
     const hashedPassword = await hashPassword(password);
-    const newUser = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: {
           email: email,
@@ -43,28 +43,31 @@ export async function POST(req: NextRequest) {
           role: role,
         },
       });
+      let patientId = null;
 
       if (role === "PATIENT") {
-        await tx.patient.create({
+        const patient = await tx.patient.create({
           data: {
             userId: user.id,
           },
         });
+        patientId = patient.id;
       }
 
-      return user;
+      return { user, patientId };
     });
 
     return NextResponse.json(
       {
         message: "User created successfully",
         user: {
-          id: newUser.id,
-          email: newUser.email,
-          firstName: newUser.firstName,
-          lastName: newUser.lastName,
-          role: newUser.role,
+          id: result.user.id,
+          email: result.user.email,
+          firstName: result.user.firstName,
+          lastName: result.user.lastName,
+          role: result.user.role,
         },
+        patientId: result.patientId,
       },
       { status: 201 },
     );
