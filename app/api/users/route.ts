@@ -43,7 +43,9 @@ export async function POST(req: NextRequest) {
           role: role,
         },
       });
+      
       let patientId = null;
+      let doctorId = null;
 
       if (role === "PATIENT") {
         const patient = await tx.patient.create({
@@ -53,8 +55,16 @@ export async function POST(req: NextRequest) {
         });
         patientId = patient.id;
       }
+      if (role === "DOCTOR") {
+        const doctor = await tx.doctor.create({
+          data: {
+            userId: user.id,
+          },
+        });
+        doctorId = doctor.id;
+      }
 
-      return { user, patientId };
+      return { user, patientId , doctorId};
     });
 
     return NextResponse.json(
