@@ -1,8 +1,8 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 import ReceptionistDashboard from "@/app/dashboard/components/ReceptionistDashboard";
-import DoctorDashboard from "@/app/dashboard/components/DoctorDashboard";
 import PatientDashboard from "@/app/dashboard/components/PatientDashboard";
 import AdminDashboard from "@/app/dashboard/components/AdminDashboard";
 
@@ -22,7 +22,7 @@ export default function DashboardPage() {
     case "RECEPTIONIST":
       return <ReceptionistDashboard />;
     case "DOCTOR":
-      return <DoctorDashboard />;
+      redirect("/doctor");
     case "PATIENT":
       return <PatientDashboard />;
     case "ADMIN":
